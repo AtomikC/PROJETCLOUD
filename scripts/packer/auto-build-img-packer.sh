@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 
 # Script créé par Florian LEAU (florian.leau@gmail.com) le 18/09/2019
 # Nom du script : auto-build-img-packer
-# Version : 0.9.1
+# Version : 0.9.2
 # Dernière modification le 19/09/2019 par FL
 # Description du script : Mise en place et exploitation des recettes Packer nécessaire pour la génération automatique d'images système et de leur importation dans le datastore d'OpenNebula
 
@@ -12,7 +12,7 @@
 # Vérification/import des recettes depuis Git    ==> OK
 # Création des images système pour les templates VM OpenNebula   ==> En cours
 # Import et remplacement des images système d'exploitation dans les templates VM actuels d'OpenNebula   ==> A faire
-# Débogage code v0.9.1
+# Débogage code v0.9.1 ==> En cours
 # logger -t $0 "Erreur"
 # ---
 
@@ -21,7 +21,7 @@ main_function()
     # --- Variables-paramètres pour les fonctions :
     url_dl_packer="https://releases.hashicorp.com/packer/1.4.3/packer_1.4.3_linux_amd64.zip"
     repo_recipes_packer="/opt/packer/recipes/"
-    url_git_recipes_packer=""
+    url_git_recipes_packer="https://github.com/AtomikC/PROJETCLOUD/archive/master.zip"
     # ---
 
     # Vérification que la machine exécutant ce script est le noeud maître du cluster OpenNebula
@@ -29,13 +29,14 @@ main_function()
     # Sinon, func_verif_leader retourne 0 et on arrête le script
 
     ########## A REMODIFIER
-    result_verif_leader=func_verif_leader2
-    if [ "$result_verif_leader" == "1" ]; then
+    func_verif_leader
+    result_verif_leader=$?
+    if [ "$result_verif_leader" -eq "1" ]; then
         logger -t $0 "Le serveur actuel est le noeud maître OpenNebula. Poursuite du script."
-        
+
         # Vérification de l'existence de l'exécutable packer
         func_verif_packer $url_dl_packer
-    
+
         # Création du dossier local de réception des recettes Packer
         func_verif_recipes $repo_recipes_packer
 
@@ -43,17 +44,17 @@ main_function()
         func_recup_recipes $url_git_recipes_packer $repo_recipes_packer
 
         # Création des images système issu des recettes Packer
-        func_build_packer_img $repo_recipes_packer
+        #func_build_packer_img $repo_recipes_packer
     else
         # Arrêt du script
         logger -t $0 "Le serveur actuel n'est pas le noeud maître OpenNebula. Arrêt du script."
     fi
 }
 
-func_build_packer_img()
-{
+#func_build_packer_img()
+##{
     #################### A CODER
-}
+#}
 
 func_recup_git_zip()
 {
@@ -69,6 +70,10 @@ func_recup_git_zip()
 
 func_recup_recipes()
 {
+    # Destruction d'un potentiel dossier dézippé provenant de Git issu d'un précédent lancement du script. 
+    # Il n'y a pas de message d'erreur s'il n'y a aucun dossier présent
+    rm -r /tmp/*-master* 2> /dev/null
+
     # Récupération du fichier zip depuis une URL Git ($1)
     func_recup_git_zip $1
 
@@ -78,8 +83,11 @@ func_recup_recipes()
     # Décompression du fichier zip issu de Git
     unzip /tmp/master.zip -d /tmp/
 
-    # Déplacement du contenu du dossier packer issu de Git dans $2 (le dossier /opt/packer/recipes)
+    # Déplacement du contenu du dossier packer issu de Git dans le dossier /opt/packer/recipes ($2)
     mv /tmp/*-master/packer/* $2
+
+    # Destruction du dossier dézippé encore présent dans /tmp
+    rm -r /tmp/*-master* 
 }
 
 func_verif_recipes()
@@ -97,23 +105,11 @@ func_verif_recipes()
     mkdir -p $1
 }
 
-func_verif_leader2()
-{
-    return 1
-}
-
 func_verif_leader()
 {
     # Récupération du résultat si le nom de la machine actuelle est présent dans la liste des noeuds OpenNebula et si il est le noeud maître
-    
-    ########## A TESTER
     grep_result=`echo "\`onezone show 0 | grep $HOSTNAME | grep 'leader'\`"`
-    #grep_result=`echo "\`onezone show 0 | grep '$HOSTNAME            leader'\`"`
-    #grep_result=`echo "\`onezone show 0 | grep '$HOSTNAME leader'\`"`
-    #grep_result=`echo "\`echo " 1 SRV2            leader     91         12531      12531      1     -1" | grep 'SRV2            leader'\`"`
-    #grep_result=`echo "\`echo " 1 SRV2            leader     91         12531      12531      1     -1" | grep 'SRV2 leader'\`"`
-    ########## 
-    
+
     # Vérification que la machine exécutant ce script est le noeud maître du cluster OpenNebula
     if [ "$grep_result" != "" ];then
         # Il y a un résultat dans la variable $grep_result, cela indique que la machine actuelle est le noeud maître 
@@ -129,7 +125,8 @@ func_verif_leader()
 func_verif_packet_install()
 {
     # Vérification si le paquet $1 est déjà installé. Si ce n'est pas le cas, installation de $1.
-    verif_install=`dpkg --list '$1' | grep "un "`
+    #verif_install=`dpkg --list "$1" | grep "un "`
+    verif_install=`echo "\`dpkg --list $1 | grep "un "\`"`
     if [ "$verif_install" != "" ]; then
         apt update && apt install $1 -y
     fi
