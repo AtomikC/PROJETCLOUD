@@ -10,9 +10,9 @@
 # Vérification du noeud maitre OpenNebula        ==> OK
 # Vérification présence de l'applicatif packer   ==> OK
 # Vérification/import des recettes depuis Git    ==> OK
-# Création des images système pour les templates VM OpenNebula   ==> En cours
+# Fonction de création des images système pour les templates VM OpenNebula   ==> A faire
 # Import et remplacement des images système d'exploitation dans les templates VM actuels d'OpenNebula   ==> A faire
-# Débogage code v0.9.1 ==> En cours
+# Débogage code v0.9.1 ==> OK
 # logger -t $0 "Erreur"
 # ---
 
@@ -44,17 +44,18 @@ main_function()
         func_recup_recipes $url_git_recipes_packer $repo_recipes_packer
 
         # Création des images système issu des recettes Packer
-        #func_build_packer_img $repo_recipes_packer
+        func_build_packer_img $repo_recipes_packer
     else
         # Arrêt du script
         logger -t $0 "Le serveur actuel n'est pas le noeud maître OpenNebula. Arrêt du script."
     fi
 }
 
-#func_build_packer_img()
-##{
-    #################### A CODER
-#}
+func_build_packer_img()
+{
+    ##### CODAGE EN COURS #####
+
+}
 
 func_recup_git_zip()
 {
