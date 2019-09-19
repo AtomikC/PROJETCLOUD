@@ -1,0 +1,88 @@
+{
+  "variables": {
+    "HTTP_PROXY": "{{ env `HTTP_PROXY` }}",
+    "HTTPS_PROXY": "{{ env `HTTPS_PROXY` }}",
+    "http_proxy": "{{ env `http_proxy` }}",
+    "https_proxy": "{{ env `https_proxy` }}",
+  	"al_mirror": "http://dl-cdn.alpinelinux.org/alpine",
+  	"al_release": "3.9.0",
+  	"al_version": "3.9",
+  	"al_flavour": "alpine-virt",
+    "vm_name": "alpine-39",
+    "root_password": "cadoles",
+    "disk_size": "10240"
+  },
+  "builders": [
+    {
+      "name": "{{ user `vm_name` }}",
+      "type": "qemu",
+      "iso_url": "{{ user `al_mirror` }}/v{{ user `al_version` }}/releases/x86_64/{{ user `al_flavour` }}-{{ user `al_release` }}-x86_64.iso",
+      "iso_checksum_url": "{{ user `al_mirror` }}/v{{ user `al_version` }}/releases/x86_64/{{ user `al_flavour` }}-{{ user `al_release` }}-x86_64.iso.sha256",
+      "iso_checksum_type": "sha256",
+      "format": "qcow2",
+      "disk_size": "{{user `disk_size`}}",
+      "disk_compression": false,
+      "skip_compaction": true,
+      "ssh_username": "root",
+      "ssh_password": "{{user `root_password`}}",
+      "accelerator": "kvm",
+      "headless": true,
+      "http_directory": "{{ template_dir }}",
+      "boot_command": [
+        "<wait5s>root<enter>",
+        "<wait1s><enter>",
+        "<wait1s>passwd<enter><wait1s>cadoles<enter><wait1s>cadoles<enter>",
+        "<wait1s>setup-interfaces<enter><wait1s><enter><wait1s><enter><wait1s><enter>",
+        "<wait1s>ifup eth0<enter>",
+        "<wait1s>setup-sshd<enter>",
+        "<wait1s><enter><wait1s>",
+        "<wait1s>echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config<enter>",
+        "<wait1s>rc-service sshd stop<enter>",
+        "<wait1s>rc-service sshd start<enter>",
+        "<wait1s><enter>"
+      ],
+      "ssh_wait_timeout": "20m",
+      "boot_wait": "5s",
+      "output_directory": "{{ template_dir }}/../../../images/alpine/{{user `al_version`}}/{{ user `al_flavour` }}",
+      "vm_name": "{{ build_name }}-{{ isotime \"20060102\" }}.img"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "expect_disconnect": true,
+      "script": "{{template_dir}}/setup-alpine.sh",
+      "environment_vars": [
+        "VM_NAME={{user `vm_name`}}",
+        "HTTP_PROXY={{user `HTTP_PROXY`}}",
+        "HTTPS_PROXY={{user `HTTPS_PROXY`}}",
+        "http_proxy={{user `http_proxy`}}",
+        "https_proxy={{user `https_proxy`}}",
+        "ROOT_PASSWORD={{user `root_password`}}"
+      ]
+    },
+    {
+      "pause_before": "10s",
+      "type": "shell",
+      "scripts": [
+        "{{template_dir}}/configure-onecontext.sh",
+        "{{template_dir}}/finalize.sh"
+      ],
+      "environment_vars": [
+        "VM_NAME={{user `vm_name`}}",
+        "HTTP_PROXY={{user `HTTP_PROXY`}}",
+        "HTTPS_PROXY={{user `HTTPS_PROXY`}}",
+        "http_proxy={{user `http_proxy`}}",
+        "https_proxy={{user `https_proxy`}}",
+        "ROOT_PASSWORD={{user `root_password`}}"
+      ]
+    }
+  ],
+  "post-processors": [
+	  {
+		  "type": "shell-local",
+		  "inline": [ "qemu-img convert -O qcow2 -c {{ template_dir }}/../../../images/alpine/{{ user `al_version` }}/{{ user `al_flavour` }}/{{ build_name }}-{{ isotime \"20060102\" }}.img {{ template_dir }}/../../../images/alpine/{{ user `al_version` }}/{{ user `al_flavour` }}/{{ user `al_flavour` }}-{{ user `al_version` }}.img" ,
+			          "rm -rf {{ template_dir }}/../../../images/alpine/{{ user `al_version` }}/{{ user `al_flavour` }}/{{ build_name }}-{{ isotime \"20060102\" }}.img" ]
+	  }
+  ]
+}
