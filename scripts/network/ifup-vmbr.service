@@ -1,0 +1,11 @@
+[Unit]
+Description=VMBR up interfaces
+After=openvswitch-switch.service
+
+[Service]
+Type=simple
+ExecStart=/bin/bash /opt/scripts/network/ifup-vmbr.sh
+
+[Install]
+WantedBy=multi-user.target
+Alias=ifup-vmbr.service

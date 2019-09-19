@@ -1,0 +1,175 @@
+
+!
+version 15.0
+no service pad
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname SW-02
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$vId1$3WdJNT8K.0i3U1wZDaeLr1
+!
+username admin password 0 passwd
+no aaa new-model
+system mtu routing 1500
+!
+!
+ip domain-name diiage.org
+!
+!
+crypto pki trustpoint TP-self-signed-1328417280
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-1328417280
+ revocation-check none
+ rsakeypair TP-self-signed-1328417280
+!
+!
+crypto pki certificate chain TP-self-signed-1328417280
+ certificate self-signed 01
+  3082022B 30820194 A0030201 02020101 300D0609 2A864886 F70D0101 05050030 
+  31312F30 2D060355 04031326 494F532D 53656C66 2D536967 6E65642D 43657274 
+  69666963 6174652D 31333238 34313732 3830301E 170D3933 30333031 30303030 
+  35375A17 0D323030 31303130 30303030 305A3031 312F302D 06035504 03132649 
+  4F532D53 656C662D 5369676E 65642D43 65727469 66696361 74652D31 33323834 
+  31373238 3030819F 300D0609 2A864886 F70D0101 01050003 818D0030 81890281 
+  8100AA17 20AFA3A5 C2663E80 264CE47B 98FE3D00 87E51851 1CA142EA 8FAC36A1 
+  DACDB382 1CD9DD2B D438D2FC 60F488A6 A5323222 2998ED87 4111FBB2 E9EE1967 
+  156028FE A9E483DA F020C471 472F2141 3E09E8E4 B6A134D2 EC625DBF 846F521F 
+  A4AAFF35 0E269897 F87267C7 02DCD5C0 0FC2C61F B296C5CB 56F04A67 5D9F6D30 
+  3C7B0203 010001A3 53305130 0F060355 1D130101 FF040530 030101FF 301F0603 
+  551D2304 18301680 1458BAA1 DDF7DAFC A72461B8 6902D550 1CA0B82A 19301D06 
+  03551D0E 04160414 58BAA1DD F7DAFCA7 2461B869 02D5501C A0B82A19 300D0609 
+  2A864886 F70D0101 05050003 81810023 90D8BBFD 576A2AFC F2DC288F FCDCA421 
+  E5448AEF EAAEF3C9 E8CABC4C 08816B9E C17A23E0 531EAD94 FF640CD6 13D2A5D0 
+  F82678BD 4622978F 7043CC89 3D4FC013 8D4E7724 A3AF9E86 4C774468 7FA09231 
+  3B9986BD 8F4EBF59 D5BC8C82 504422A7 8A0250B9 1EFC248F EF16757F 30C7066F 
+  9B272EDB 13C8727C 6A934D92 F7FB58
+  	quit
+!
+!
+!
+!
+!
+spanning-tree mode pvst
+spanning-tree extend system-id
+!
+vlan internal allocation policy ascending
+!
+ip ssh version 2
+!
+!
+!
+!
+!
+interface FastEthernet0/1
+ description SRV1
+ switchport mode trunk
+ speed 100
+!
+interface FastEthernet0/2
+ switchport mode trunk
+!
+interface FastEthernet0/3
+ switchport mode trunk
+ speed 100
+!
+interface FastEthernet0/4
+ switchport mode trunk
+ speed 100
+!
+interface FastEthernet0/5
+ speed 100
+!
+interface FastEthernet0/6
+ speed 100
+!
+interface FastEthernet0/7
+ speed 100
+!
+interface FastEthernet0/8
+ speed 100
+!
+interface FastEthernet0/9
+ speed 100
+!
+interface FastEthernet0/10
+ speed 100
+!
+interface FastEthernet0/11
+ speed 100
+!
+interface FastEthernet0/12
+ speed 100
+!
+interface FastEthernet0/13
+ speed 100
+!
+interface FastEthernet0/14
+ speed 100
+!
+interface FastEthernet0/15
+ speed 100
+!
+interface FastEthernet0/16
+ speed 100
+!
+interface FastEthernet0/17
+ speed 100
+!
+interface FastEthernet0/18
+ speed 100
+!
+interface FastEthernet0/19
+ speed 100
+!
+interface FastEthernet0/20
+ speed 100
+!
+interface FastEthernet0/21
+ speed 100
+!
+interface FastEthernet0/22
+ speed 100
+!
+interface FastEthernet0/23
+ switchport access vlan 60
+ switchport mode access
+ speed 100
+!
+interface FastEthernet0/24
+ switchport access vlan 50
+ switchport mode access
+ speed 100
+!
+interface GigabitEthernet0/1
+ switchport access vlan 60
+ switchport mode access
+!
+interface GigabitEthernet0/2
+ switchport mode trunk
+!
+interface Vlan1
+ no ip address
+ shutdown
+!
+interface Vlan50
+ ip address 192.168.50.102 255.255.255.0
+!
+ip http server
+ip http secure-server
+!
+!
+line con 0
+ password passwd
+ login
+line vty 0 4
+ login local
+ transport input ssh
+line vty 5 15
+ login
+!
+end

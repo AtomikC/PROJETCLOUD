@@ -1,0 +1,38 @@
+source /etc/network/interfaces.d/*
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# The motherboard network interface
+#allow-hotplug enp6s0
+#iface enp6s0 inet dhcp
+
+# the Bonded interface
+auto bond0
+iface bond0 inet manual
+	bond-mode 1
+	bond-primary enp3s0f0
+	bond-slaves enp3s0f0 enp3s0f1
+	bond-miimon 100
+	bond-downdelay 400
+	bond-updelay 600
+
+
+auto bond1
+iface bond1 inet static
+	bond-mode 1
+	bond-primary enp4s0f0
+	bond-slaves enp4s0f0 enp4s0f1
+	bond-miimon 100
+	bond-downdelay 400
+	bond-updelay 600
+	address	192.168.40.3
+	netmask	255.255.255.0
+
+
+auto vmbr60
+iface vmbr60 inet manual
+
+auto vmbr50
+iface vmbr50 inet manual

@@ -1,0 +1,11 @@
+[Unit]
+Description=Mount gluster brick
+After=glusterfs-server.service
+
+[Service]
+Type=simple
+ExecStart=/bin/bash /opt/scripts/storage/mount-gluster.sh
+
+[Install]
+WantedBy=multi-user.target
+Alias=mount-gluster.service

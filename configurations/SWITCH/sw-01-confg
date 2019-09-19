@@ -1,0 +1,202 @@
+
+!
+! Last configuration change at 18:16:45 UTC Mon Mar 8 1993 by admin
+!
+version 15.0
+no service pad
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname SW-01
+!
+boot-start-marker
+boot-end-marker
+!
+enable password passwd
+!
+username admin password 0 passwd
+no aaa new-model
+system mtu routing 1500
+!
+!
+ip domain-name diiage.org
+!
+!
+crypto pki trustpoint TP-self-signed-2665319552
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-2665319552
+ revocation-check none
+ rsakeypair TP-self-signed-2665319552
+!
+!
+crypto pki certificate chain TP-self-signed-2665319552
+ certificate self-signed 01
+  3082022B 30820194 A0030201 02020101 300D0609 2A864886 F70D0101 05050030 
+  31312F30 2D060355 04031326 494F532D 53656C66 2D536967 6E65642D 43657274 
+  69666963 6174652D 32363635 33313935 3532301E 170D3933 30333031 30303030 
+  35375A17 0D323030 31303130 30303030 305A3031 312F302D 06035504 03132649 
+  4F532D53 656C662D 5369676E 65642D43 65727469 66696361 74652D32 36363533 
+  31393535 3230819F 300D0609 2A864886 F70D0101 01050003 818D0030 81890281 
+  8100E3D9 ADA00A18 6BD79FEE F0BADF14 34C544B9 872C2A37 35396265 34CDD0EF 
+  934C688D 316476CE EA1586B9 09ABF9BF 6E597432 A378E1BD 4EF23CF4 FAD08ECB 
+  6B77D0CA 7C2D3D4E 80C0104A 01C026BB 6FAC09F5 B796DCCD EC8D6E75 8E6D148A 
+  5124410B 1F4547D5 11C9A9E8 915F4B86 59483A8D 98FDED39 E31E84C0 6CB0364F 
+  D93F0203 010001A3 53305130 0F060355 1D130101 FF040530 030101FF 301F0603 
+  551D2304 18301680 144D3F0C 9F55E797 89555428 9D1D80DF DD525F1D 03301D06 
+  03551D0E 04160414 4D3F0C9F 55E79789 5554289D 1D80DFDD 525F1D03 300D0609 
+  2A864886 F70D0101 05050003 81810012 A7ED1D9D 20BCF976 D69C2627 FCF468BB 
+  3AA10EFA 4201C941 CA80DEE5 EB2A1C9F 7629A53B D9D6939D 33D25086 039ABA81 
+  F3E3C62A F15626C6 21DA9C7E 871B8334 1BAD4E53 7F33F74C 868B739E 247250BC 
+  DD1FD9EB 02E1847D 3C82D13C 8DD4BB9E 98988092 481E1B42 84D5D217 574C7168 
+  BC175947 BA874616 2318F9EF 6E6B73
+  	quit
+!
+!
+!
+!
+!
+!
+spanning-tree mode rapid-pvst
+spanning-tree extend system-id
+!
+vlan internal allocation policy ascending
+!
+ip ssh version 2
+!
+!
+!
+!
+!
+interface FastEthernet0/1
+ description SRV1
+ switchport mode trunk
+ speed 100
+ duplex full
+!
+interface FastEthernet0/2
+ switchport access vlan 50
+ switchport mode trunk
+ speed 100
+ duplex full
+!
+interface FastEthernet0/3
+ switchport mode trunk
+ speed 100
+ duplex full
+!
+interface FastEthernet0/4
+ switchport mode trunk
+ speed 100
+ duplex full
+!
+interface FastEthernet0/5
+ speed 100
+ duplex full
+!
+interface FastEthernet0/6
+ speed 100
+ duplex full
+!
+interface FastEthernet0/7
+ speed 100
+ duplex full
+!
+interface FastEthernet0/8
+ speed 100
+ duplex full
+!
+interface FastEthernet0/9
+ speed 100
+ duplex full
+!
+interface FastEthernet0/10
+ speed 100
+ duplex full
+!
+interface FastEthernet0/11
+ speed 100
+ duplex full
+!
+interface FastEthernet0/12
+ speed 100
+ duplex full
+!
+interface FastEthernet0/13
+ speed 100
+ duplex full
+!
+interface FastEthernet0/14
+ speed 100
+ duplex full
+!
+interface FastEthernet0/15
+ speed 100
+ duplex full
+!
+interface FastEthernet0/16
+ speed 100
+ duplex full
+!
+interface FastEthernet0/17
+ speed 100
+ duplex full
+!
+interface FastEthernet0/18
+ speed 100
+ duplex full
+!
+interface FastEthernet0/19
+ speed 100
+ duplex full
+!
+interface FastEthernet0/20
+ speed 100
+ duplex full
+!
+interface FastEthernet0/21
+ speed 100
+ duplex full
+!
+interface FastEthernet0/22
+ speed 100
+ duplex full
+!
+interface FastEthernet0/23
+ switchport access vlan 60
+ switchport mode access
+ speed 100
+ duplex full
+!
+interface FastEthernet0/24
+ switchport access vlan 50
+ switchport mode access
+ speed 100
+ duplex full
+!
+interface GigabitEthernet0/1
+ switchport access vlan 60
+ switchport mode access
+!
+interface GigabitEthernet0/2
+ switchport mode trunk
+!
+interface Vlan1
+ no ip address
+!
+interface Vlan50
+ ip address 192.168.50.101 255.255.255.0
+!
+ip http server
+ip http secure-server
+!
+!
+line con 0
+line vty 0 4
+ password passwd
+ login local
+ transport input ssh
+line vty 5 15
+ login
+!
+end
