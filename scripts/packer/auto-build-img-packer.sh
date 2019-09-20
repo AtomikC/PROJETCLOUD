@@ -2,7 +2,7 @@
 
 # Script créé par Florian LEAU (florian.leau@gmail.com) le 18/09/2019
 # Nom du script : auto-build-img-packer
-# Version : 0.9.2
+# Version : 0.9.3
 # Dernière modification le 19/09/2019 par FL
 # Description du script : Mise en place et exploitation des recettes Packer nécessaire pour la génération automatique d'images système et de leur importation dans le datastore d'OpenNebula
 
@@ -10,10 +10,11 @@
 # Vérification du noeud maitre OpenNebula        ==> OK
 # Vérification présence de l'applicatif packer   ==> OK
 # Vérification/import des recettes depuis Git    ==> OK
-# Fonction de création des images système pour les templates VM OpenNebula   ==> A faire
+# Fonction de création des images système pour les templates VM OpenNebula   ==> En cours / A deboguer
 # Import et remplacement des images système d'exploitation dans les templates VM actuels d'OpenNebula   ==> A faire
 # Débogage code v0.9.1 ==> OK
 # logger -t $0 "Erreur"
+# oneimage create --name Alpine_IMG_OS_VirtIO_2 --path /var/tmp/alpine-virt-3.9-diiage.img --disk_type OS --prefix vd --driver qcow2 --datastore cluster_default
 # ---
 
 main_function()
@@ -28,8 +29,7 @@ main_function()
     # Si la machine est bien le noeud maître, func_verif_leader retourne 1 indiquant qu'il faut poursuivre l'exécution du script de génération des images des systèmes d'exploitation
     # Sinon, func_verif_leader retourne 0 et on arrête le script
 
-    ########## A REMODIFIER
-    func_verif_leader
+    func_verif_leader2
     result_verif_leader=$?
     if [ "$result_verif_leader" -eq "1" ]; then
         logger -t $0 "Le serveur actuel est le noeud maître OpenNebula. Poursuite du script."
@@ -44,17 +44,43 @@ main_function()
         func_recup_recipes $url_git_recipes_packer $repo_recipes_packer
 
         # Création des images système issu des recettes Packer
-        func_build_packer_img $repo_recipes_packer
+        #func_build_packer_img $repo_recipes_packer
     else
         # Arrêt du script
         logger -t $0 "Le serveur actuel n'est pas le noeud maître OpenNebula. Arrêt du script."
     fi
 }
 
+func_get_path_json()
+{
+    # l2=$(echo `find /opt/packer/recipes/ -name "*.json"`)
+    # IFS=', ' read -r -a array <<< "$string"
+
+    list_path_json=(echo `find $1 -name "*.json"`)
+    echo "$list_path_json"
+    # A REVOIR
+    #array_path_json=()
+    #IFS=' ' read -r -a array_path_json <<< "$list_path_json"
+    #echo "1=$array_path_json"
+    #echo "2=${array_path_json[*]}"
+    #echo "3=${array_path_json[0]}"
+    #echo "4=${array_path_json[1]}"
+}
+
 func_build_packer_img()
 {
     ##### CODAGE EN COURS #####
+    # Récupération des emplacements des fichiers .JSON nécessaire à la création des images systèmes avec Packer depuis l'emplacement des recettes ($1)
+    func_get_path_json $1
+    result_func_get_path_json=$?
+    
+    # Ajout du droit d'éxécution de l'applicatif packer
+    chmod +x /opt/packer/packer
 
+    # Création des images systèmes à partir des chemins de recettes Packer
+    cd /opt/packer/
+    # A AMELIORER POUR PRENDRE EN COMPTE PLUSIEURS CHEMINS
+    ./packer build $result_func_get_path_json
 }
 
 func_recup_git_zip()
@@ -87,8 +113,9 @@ func_recup_recipes()
     # Déplacement du contenu du dossier packer issu de Git dans le dossier /opt/packer/recipes ($2)
     mv /tmp/*-master/packer/* $2
 
-    # Destruction du dossier dézippé encore présent dans /tmp
-    rm -r /tmp/*-master* 
+    # Destruction du dossier dézippé et du fichier zip encore présent dans /tmp
+    rm -r /tmp/*-master
+    rm /tmp/master.zip
 }
 
 func_verif_recipes()
@@ -104,6 +131,11 @@ func_verif_recipes()
 
     # Création du dossier existant
     mkdir -p $1
+}
+
+func_verif_leader2()
+{
+    return 1
 }
 
 func_verif_leader()
